@@ -1,0 +1,1 @@
+// Removed the "What Our Users Say" section as requested.
