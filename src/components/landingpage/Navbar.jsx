@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './Navbar.css';
 import logoLight from '../images/logo-black.png'; // Default logo
 import logoDark from '../images/logo-white.png'; // Logo for sticky navbar
@@ -14,9 +14,6 @@ const Navbar = () => {
     localStorage.setItem('isLoggedIn', 'true'); // Set login state
     navigate('/Signin'); // Redirect to the sign-in page
   };
-
-  // Check if the user is logged in
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,7 +43,10 @@ const Navbar = () => {
           <button><Link to="Grids" smooth={true} offset={-0} duration={30}>  About
           </Link></button>
         </li>
-        {/* Removed Reviews and Contact Us links */}
+        <li>
+          <button><Link to="Contact" smooth={true} offset={-80} duration={500}>  Contact Us
+          </Link></button>
+        </li>
         <li>
         <button onClick={handleLogin}>Log in</button>
           

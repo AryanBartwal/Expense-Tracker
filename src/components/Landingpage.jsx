@@ -1,8 +1,8 @@
-import React from "react";
 import Navbar from "./landingpage/Navbar";
 import Landing from "./landingpage/Landing";
 import Features from "./landingpage/Features";
 import Grids from "./landingpage/Grids";
+import Contact from "./landingpage/Contact";
 import Footer from "./landingpage/Footer";
 
 // Main landing page for the app. Renders all top-level sections.
@@ -22,6 +22,10 @@ const LandingPage = () => {
       {/* About/Grids section */}
       <div id="Grids">
         <Grids />
+      </div>
+      {/* Contact section */}
+      <div id="Contact">
+        <Contact />
       </div>
       {/* Footer section */}
       <div id="Footer">

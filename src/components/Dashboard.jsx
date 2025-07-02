@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Box, Grid, Paper, Typography } from "@mui/material";
+import { useState, useEffect, useCallback } from "react";
+import { Box, Grid, Typography } from "@mui/material";
 import SummaryCard from "./dashboard/SummaryCard";
 import TransactionTable from "./transactions/TransactionTable";
 import EditTransactionForm from "./transactions/EditTransactionForm";
@@ -14,18 +14,18 @@ function Dashboard() {
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [editTransaction, setEditTransaction] = useState(null);
 
-  useEffect(() => {
-    fetchTransactions();
-  }, []);
-
-  const fetchTransactions = () => {
+  const fetchTransactions = useCallback(() => {
     fetch("http://localhost:5000/transactions")
       .then((response) => response.json())
       .then((data) => {
         setTransactions(data);
         calculateSummary(data);
       });
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
 
   const calculateSummary = (data) => {
     const income = data
@@ -86,100 +86,113 @@ function Dashboard() {
       <NavbarAfter />
       <Box
         sx={{
-          p: 4,
-          mt: 8,
-          backgroundColor: "linear-gradient(135deg, #e0f7fa 30%, #80deea 90%)",
-          borderRadius: 3,
+          minHeight: "100vh",
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
+          pt: 10,
+          pb: 4,
         }}
       >
-        <Typography variant="h4" gutterBottom textAlign="center" sx={{ color: "#004d40", fontWeight: "bold", mb:3, }}>
-          Dashboard Overview 
-        </Typography>
+        <Box sx={{ px: { xs: 2, sm: 4 }, maxWidth: "1400px", margin: "0 auto" }}>
+          <Typography 
+            variant="h3" 
+            gutterBottom 
+            textAlign="center" 
+            sx={{ 
+              color: "white",
+              fontWeight: "bold",
+              mb: 4,
+              fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
+              textShadow: "2px 2px 4px rgba(0,0,0,0.3)"
+            }}
+          >
+            💰 Financial Dashboard
+          </Typography>
 
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={4}>
+        <Grid container spacing={3} id="dashboard-summary">
+          <Grid item xs={12} sm={6} md={4}>
             <SummaryCard
               title="Total Income"
               amount={totalIncome}
-              sx={{
-                backgroundColor: "#b2dfdb",
-                color: "#004d40",
-                boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
-              }}
+              type="income"
             />
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6} md={4}>
             <SummaryCard
               title="Total Expenses"
               amount={totalExpenses}
-              sx={{
-                backgroundColor: "#ffab91",
-                color: "#bf360c",
-                boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
-              }}
+              type="expense"
             />
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={12} md={4}>
             <SummaryCard
-              title="Balance"
+              title="Current Balance"
               amount={totalIncome - totalExpenses}
-              sx={{
-                backgroundColor: "#80cbc4",
-                color: "#004d40",
-                boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
-              }}
+              type="balance"
             />
           </Grid>
         </Grid>
 
-        <Grid container spacing={3} sx={{ mt: 4 }}>
-          <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={{ backgroundColor: "#e3f2fd" }}>
-              <ChartContainer totalIncome={totalIncome} totalExpenses={totalExpenses} />
-            </Paper>
+        <Grid container spacing={4} sx={{ mt: 2 }} id="dashboard-charts">
+          <Grid item xs={12}>
+            <ChartContainer
+              totalIncome={totalIncome}
+              totalExpenses={totalExpenses}
+            />
           </Grid>
-          <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={{ backgroundColor: "rgba(255,255,255,0.533)" }}>
+        </Grid>
+
+        <Grid container spacing={4} sx={{ mt: 2 }} id="dashboard-transactions">
+          <Grid item xs={12}>
+            <Box
+              sx={{
+                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                borderRadius: 4,
+                boxShadow: "0px 8px 25px rgba(0, 0, 0, 0.15)",
+                overflow: "hidden"
+              }}
+            >
               <TransactionTable
                 transactions={transactions}
                 onEdit={setEditTransaction}
                 onDelete={handleDeleteTransaction}
               />
-            </Paper>
+            </Box>
           </Grid>
         </Grid>
 
         <Box sx={{ mt: 4 }}>
-          <Paper
-            elevation={4}
+          <Box
             sx={{
-              borderRadius: 3,
-              backgroundColor: "#e8f5e9",
-              boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
+              backgroundColor: "rgba(255, 255, 255, 0.95)",
+              borderRadius: 4,
+              boxShadow: "0px 8px 25px rgba(0, 0, 0, 0.15)",
+              overflow: "hidden"
             }}
           >
             <AddExpenses onAddTransaction={handleAddTransaction} />
-          </Paper>
+          </Box>
         </Box>
 
         {editTransaction && (
-          <Paper
-            elevation={4}
-            sx={{
-              mt: 4,
-              borderRadius: 3,
-              backgroundColor: "rgb(227, 242, 253)",
-              boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.1)",
-            }}
-          >
-            <EditTransactionForm
-              transaction={editTransaction}
-              setTransaction={setEditTransaction}
-              onSave={handleSaveUpdate}
-              onCancel={() => setEditTransaction(null)}
-            />
-          </Paper>
+          <Box sx={{ mt: 4 }}>
+            <Box
+              sx={{
+                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                borderRadius: 4,
+                boxShadow: "0px 8px 25px rgba(0, 0, 0, 0.15)",
+                overflow: "hidden"
+              }}
+            >
+              <EditTransactionForm
+                transaction={editTransaction}
+                setTransaction={setEditTransaction}
+                onSave={handleSaveUpdate}
+                onCancel={() => setEditTransaction(null)}
+              />
+            </Box>
+          </Box>
         )}
+        </Box>
       </Box>
 
       <Footer />
