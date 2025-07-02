@@ -7,6 +7,7 @@ import ChartContainer from "./dashboard/ChartContainer";
 import AddExpenses from "./transactions/AddExpenses";
 import NavbarAfter from "./dashboard/NavbarAfter";
 import Footer from "./landingpage/Footer";
+import { transactionService } from "../services/transactionService";
 
 function Dashboard() {
   const [transactions, setTransactions] = useState([]);
@@ -14,13 +15,14 @@ function Dashboard() {
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [editTransaction, setEditTransaction] = useState(null);
 
-  const fetchTransactions = useCallback(() => {
-    fetch("http://localhost:5000/transactions")
-      .then((response) => response.json())
-      .then((data) => {
-        setTransactions(data);
-        calculateSummary(data);
-      });
+  const fetchTransactions = useCallback(async () => {
+    try {
+      const data = await transactionService.getAll();
+      setTransactions(data);
+      calculateSummary(data);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+    }
   }, []);
 
   useEffect(() => {
@@ -39,46 +41,42 @@ function Dashboard() {
     setTotalExpenses(expenses);
   };
 
-  const handleAddTransaction = (newTransaction) => {
-    fetch("http://localhost:5000/transactions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newTransaction),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        const updatedTransactions = [...transactions, data];
-        setTransactions(updatedTransactions);
-        calculateSummary(updatedTransactions);
-      });
+  const handleAddTransaction = async (newTransaction) => {
+    try {
+      const data = await transactionService.add(newTransaction);
+      const updatedTransactions = [...transactions, data];
+      setTransactions(updatedTransactions);
+      calculateSummary(updatedTransactions);
+    } catch (error) {
+      console.error('Error adding transaction:', error);
+    }
   };
 
-  const handleDeleteTransaction = (id) => {
-    fetch(`http://localhost:5000/transactions/${id}`, { method: "DELETE" })
-      .then(() => {
-        const updatedTransactions = transactions.filter(
-          (transaction) => transaction.id !== id
-        );
-        setTransactions(updatedTransactions);
-        calculateSummary(updatedTransactions);
-      });
+  const handleDeleteTransaction = async (id) => {
+    try {
+      await transactionService.delete(id);
+      const updatedTransactions = transactions.filter(
+        (transaction) => transaction.id !== id
+      );
+      setTransactions(updatedTransactions);
+      calculateSummary(updatedTransactions);
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+    }
   };
 
-  const handleSaveUpdate = () => {
-    fetch(`http://localhost:5000/transactions/${editTransaction.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editTransaction),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        const updatedTransactions = transactions.map((transaction) =>
-          transaction.id === editTransaction.id ? data : transaction
-        );
-        setTransactions(updatedTransactions);
-        calculateSummary(updatedTransactions);
-        setEditTransaction(null);
-      });
+  const handleSaveUpdate = async () => {
+    try {
+      const data = await transactionService.update(editTransaction.id, editTransaction);
+      const updatedTransactions = transactions.map((transaction) =>
+        transaction.id === editTransaction.id ? data : transaction
+      );
+      setTransactions(updatedTransactions);
+      calculateSummary(updatedTransactions);
+      setEditTransaction(null);
+    } catch (error) {
+      console.error('Error updating transaction:', error);
+    }
   };
 
   return (
